@@ -39,6 +39,7 @@ var tictactoe = function (firstTurn) {
         var i;
         for (i = 0; i < 9; i++) {
             $("#cell"+i).off("click"); //Clear clicks;
+            $("#cell"+i).addClass("activeCell");
             $("#cell"+i).find(".content").html("");
         }
         field.fill(""); // Empty playing field
@@ -48,6 +49,7 @@ var tictactoe = function (firstTurn) {
             $("#cell"+i).on("click", function () {
                 $(this).find(".content").html(currentTurn);
                 $(this).off("click");
+                $(this).removeClass("activeCell");
                 setValue($(this).attr("id").slice(-1)); // Set value to a chosen place on a field
             });
         }

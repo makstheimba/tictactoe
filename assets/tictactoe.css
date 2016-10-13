@@ -1,24 +1,45 @@
 body{
     margin: 0;
     width: 100vw;
+    cursor: default;
+    
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .field{
     width: 100vw;
     height: 100vw;
+    max-width: calc(100vh - 120px);
+    max-height: calc(100vh - 120px);
     position: absolute;
 	top:0;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	margin: auto;
+    background: linear-gradient(0deg, #69baef, #ef6969);
+    overflow: hidden;
 }
 .cell{
     position: relative;
-    background: #aaa;
+    background: #eee;
+    box-shadow: 0px 0px 10px 0px white;
     float:left;
     width: 30%;
     margin: 1.66%;
     padding-top: 30%;
+    
+}
+.activeCell:hover{
+    transform:translateY(-2px);
+    box-shadow: 0px 0px 15px 0px #ccc;
+}
+.activeCell:active{
+    transform: translateY(2px);
 }
 .content{
     display: flex;
@@ -31,7 +52,6 @@ body{
     margin: 10%;
     font-family: sans-serif;
     font-size: 30vw;
-    overflow: hidden;
 }
 .sidePlayer{    
     display: flex;
@@ -39,31 +59,44 @@ body{
     align-items: center;
     position: fixed;
     width: 100vw;
-    
     font-size: 60px;
+    min-height: 60px;
+    
+    height: -moz-calc((100vh - 100vw)/2);
+    height: -webkit-calc((100vh - 100vw)/2);
+    height: -o-calc((100vh - 100vw)/2);
+    height: calc((100vh - 100vw)/2);
 }
-#redPlayer{    
-    border: 1px solid red;
+.redSide{    
+    background-color: #ef6969;
 }
-#bluePlayer{
-    border: 1px solid blue;
+.blueSide{
+    background-color: #69baef;
     bottom: 0;
 }
 @media (orientation: landscape){
     .field{
         width: 100vh;
         height: 100vh;
+        background: linear-gradient(270deg, #69baef, #ef6969);
+        
+        max-width: calc(100vw - 120px);
+        max-height: calc(100vw - 120px);
     }
     .content{
         font-size: 30vh;
     }
     .sidePlayer{
-        width: 80px;
         height: 100vh;
+        
+        width: -moz-calc((100vw - 100vh)/2);
+        width: -webkit-calc((100vw - 100vh)/2);
+        width: -o-calc((100vw - 100vh)/2);
+        width: calc((100vw - 100vh)/2);
+        
+        min-width: 60px;
     }
-    #redPlayer{
-    }
-    #bluePlayer{
+    .blueSide{
         right: 0;
     }
 }

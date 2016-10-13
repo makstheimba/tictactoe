@@ -42,17 +42,16 @@ var tictactoe = function (firstTurn) {
     self.newGame = function () {
         var i;
         for (i = 0; i < 9; i++) {
-            $("#"+i).off("click"); //Clear cliks;
+            $("#cell"+i).off("click"); //Clear cliks;
         }
         field.fill("none");
         $("#P1").html(score.P1);
         $("#P2").html(score.P2);
         for (i = 0; i < 9; i++) {
-            $("#"+i).html("++");
-            $("#"+i).on("click", function () {
+            $("#cell"+i).on("click", function () {
                 $(this).html(currentTurn);
                 $(this).off("click");
-                setValue($(this).attr("id")); // Set value to a chosen place on a field
+                setValue($(this).attr("id").slice(-1)); // Set value to a chosen place on a field
             });
         }
     }

@@ -10,11 +10,17 @@ body{
     -ms-user-select: none;
     user-select: none;
 }
-.field{
+.fieldGhost{ 
+    /*fieldGhost is here just to get rid of side whitespaces on almost square screens.
+    It occupies the same space as field but with height restraints only*/
     width: 100vw;
     height: 100vw;
-    max-width: calc(100vh - 120px);
+    
     max-height: calc(100vh - 120px);
+    max-height: -moz-calc(100vh - 120px);
+    max-height: -webkit-calc(100vh - 120px);
+    max-height: -o-calc(100vh - 120px);
+    
     position: absolute;
 	top:0;
 	bottom: 0;
@@ -22,6 +28,27 @@ body{
 	right: 0;
 	margin: auto;
     background: linear-gradient(0deg, #69baef, #ef6969);
+}
+.field{
+    width: 100vw;
+    height: 100vw;
+    
+    max-width: -moz-calc(100vh - 120px);
+    max-width: -webkit-calc(100vh - 120px);
+    max-width: -o-calc(100vh - 120px);
+    max-width: calc(100vh - 120px);
+    
+    max-height: -moz-calc(100vh - 120px);
+    max-height: -webkit-calc(100vh - 120px);
+    max-height: -o-calc(100vh - 120px);
+    max-height: calc(100vh - 120px);
+    
+    position: absolute;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;    
     overflow: hidden;
 }
 .cell{
@@ -75,11 +102,21 @@ body{
     bottom: 0;
 }
 @media (orientation: landscape){
-    .field{
+    .fieldGhost{
         width: 100vh;
         height: 100vh;
-        background: linear-gradient(270deg, #69baef, #ef6969);
         
+        max-width: -moz-calc(100vw - 120px);
+        max-width: -webkit-calc(100vw - 120px);
+        max-width: -o-calc(100vw - 120px);
+        max-width: calc(100vw - 120px);
+        
+        max-height: none;
+        background: linear-gradient(270deg, #69baef, #ef6969);
+    }
+    .field{
+        width: 100vh;
+        height: 100vh;        
         max-width: calc(100vw - 120px);
         max-height: calc(100vw - 120px);
     }

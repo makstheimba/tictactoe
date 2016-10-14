@@ -12,7 +12,7 @@ body{
 }
 .fieldGhost{ 
     /*fieldGhost is here just to get rid of side whitespaces on almost square screens.
-    It occupies the same space as field but with height restraints only*/
+    It occupies the same space as field but with height or width restraints only depending on orientation.*/
     width: 100vw;
     height: 100vw;
     
@@ -54,7 +54,7 @@ body{
 .cell{
     position: relative;
     background: #eee;
-    box-shadow: 0px 0px 10px 0px white;
+    border-radius: 5px;
     float:left;
     width: 30%;
     margin: 1.66%;
@@ -63,7 +63,7 @@ body{
 }
 .activeCell:hover{
     transform:translateY(-2px);
-    box-shadow: 0px 0px 15px 0px #ccc;
+    box-shadow: 0px 0px 5px 0px #ccc;
 }
 .activeCell:active{
     transform: translateY(2px);
@@ -78,7 +78,6 @@ body{
     width: 80%;
     margin: 10%;
     font-family: sans-serif;
-    font-size: 30vw;
 }
 .sidePlayer{    
     display: flex;
@@ -101,6 +100,18 @@ body{
     background-color: #69baef;
     bottom: 0;
 }
+.redPlayerActive{
+    box-shadow: 0px 30px 20px -15px red inset;
+}
+.bluePlayerActive{
+    box-shadow: 0px -30px 20px -15px blue inset;
+}
+.redPlayer{
+    color: #ef6969;
+}
+.bluePlayer{
+    color: #69baef;
+}
 @media (orientation: landscape){
     .fieldGhost{
         width: 100vh;
@@ -120,9 +131,6 @@ body{
         max-width: calc(100vw - 120px);
         max-height: calc(100vw - 120px);
     }
-    .content{
-        font-size: 30vh;
-    }
     .sidePlayer{
         height: 100vh;
         
@@ -132,6 +140,12 @@ body{
         width: calc((100vw - 100vh)/2);
         
         min-width: 60px;
+    }
+    .redPlayerActive{
+        box-shadow: 30px 0px 20px -15px red inset;
+    }
+    .bluePlayerActive{
+        box-shadow: -30px 0px 20px -15px blue inset;
     }
     .blueSide{
         right: 0;

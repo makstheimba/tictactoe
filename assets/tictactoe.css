@@ -51,7 +51,40 @@ body{
 	margin: auto;    
     overflow: hidden;
 }
-.cell{
+
+/* Styling menus */
+
+.menuScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 1;
+    text-align: center;    
+    background: linear-gradient(0deg, #69baef, #ef6969);
+}
+.startScreen{
+    margin-top: 30%;
+}
+.optionsScreen {
+    margin-top: 20%;
+    display: none;
+}
+.optionsScreen .tBtn{
+    font-size: 20px;
+    margin-top: 5px;
+}
+
+.tBtn {
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+    font-size: 30px;
+}
+
+/* Styling field*/
+
+.cell {
     position: relative;
     background: #eee;
     border-radius: 5px;
@@ -61,11 +94,11 @@ body{
     padding-top: 30%;
     
 }
-.activeCell:hover{
+.emptyCell:hover{
     transform:translateY(-2px);
     box-shadow: 0px 0px 5px 0px #ccc;
 }
-.activeCell:active{
+.emptyCell:active{
     transform: translateY(2px);
 }
 .content{
@@ -100,11 +133,26 @@ body{
     background-color: #69baef;
     bottom: 0;
 }
+
+/* Styles for different player actions*/
+
 .redPlayerActive{
     box-shadow: 0px 30px 20px -15px red inset;
 }
 .bluePlayerActive{
     box-shadow: 0px -30px 20px -15px blue inset;
+}
+.redPlayerWins{
+    background: red;
+}
+.bluePlayerWins{
+    background: blue;
+}
+.redPlayerMarker{
+    color: red;
+}
+.bluePlayerMarker{
+    color: blue;
 }
 .redPlayer{
     color: #ef6969;
@@ -112,6 +160,7 @@ body{
 .bluePlayer{
     color: #69baef;
 }
+
 @media (orientation: landscape){
     .fieldGhost{
         width: 100vh;
@@ -130,6 +179,9 @@ body{
         height: 100vh;        
         max-width: calc(100vw - 120px);
         max-height: calc(100vw - 120px);
+    }
+    .menuScreen{
+        background: linear-gradient(270deg, #69baef, #ef6969);
     }
     .sidePlayer{
         height: 100vh;

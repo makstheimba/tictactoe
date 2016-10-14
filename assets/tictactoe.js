@@ -8,7 +8,7 @@ var tictactoe = function (players) {
         field = Array(9),
         currentMarker = "X",
         currentPlayer = players.markerToPlayer[currentMarker],
-        celebrationLength = 1000,
+        celebrationLength = 2000,
         self = {};
     $("#"+currentPlayer).addClass(currentPlayer+"Active");
     
@@ -21,14 +21,26 @@ var tictactoe = function (players) {
         winConditions.forEach(function (state) { // Test if all places on a field for a certain win condition occupied with the same element            
             if (state.every(isMarkerInPlace)) {
                 var winner = currentPlayer;
-                alert("Winner is " + winner);
                 players.score[winner] += 1;
-                self.newGame();
+                console.log(currentPlayer);
+                // Highlight the winner
+                $("#" + winner).addClass(winner+"Wins");
+                // Hightlight winning combination
+                state.forEach(function(cellId) {
+                   $("#cell"+cellId).removeClass(winner).addClass(winner+"Marker");
+                });
+                // Take some time for celebration and remove highlights
+                setTimeout(function () {
+                    $("#" + winner).removeClass(winner+"Wins");
+                    state.forEach(function(cellId) {
+                       $("#cell"+cellId).removeClass(winner+"Marker");
+                    });
+                    self.newGame();                    
+                }, celebrationLength);
             }
         });
         if (field.every(function (elem) {return elem !== ""; })) { //If every cell is occupied call a tie
-            alert("Tie");
-            self.newGame();
+            setTimeout(self.newGame, celebrationLength);
         }
     }
     function setMarker(place) {
@@ -40,13 +52,15 @@ var tictactoe = function (players) {
         $("#"+currentPlayer).addClass(currentPlayer+"Active");
     }
     self.newGame = function () {
+        
         // Update score
         $("#redPlayer").html(players.score.redPlayer);
         $("#bluePlayer").html(players.score.bluePlayer);
+        
         // Setup playing field
         field.fill("").forEach(function (_, i) {
             var cellId = "#cell" + i;
-            $(cellId).off("click").addClass("activeCell"); //Clear previous clicks
+            $(cellId).off("click").addClass("emptyCell"); //Clear previous clicks
             $(cellId).find(".content").html(""); //Empty all cells
             $(cellId).removeClass("bluePlayer redPlayer"); // Remove color markers
             
@@ -54,7 +68,7 @@ var tictactoe = function (players) {
             $(cellId).on("click", function () {
                 $(this).find(".content").html(currentMarker);
                 $(this).addClass(currentPlayer);
-                $(this).off("click").removeClass("activeCell");
+                $(this).off("click").removeClass("emptyCell");
                 setMarker($(this).attr("id").slice(-1)); // Set value to a chosen cell on a field
             });
         });
@@ -66,14 +80,44 @@ var tictactoe = function (players) {
     };
     return self;
 };
-
 $(document).ready(function () {
-    var players = {score: {"redPlayer": 0, "bluePlayer": 0}, markerToPlayer: {}},
-        game;
-    players.markerToPlayer["X"] = "redPlayer";
-    players.markerToPlayer["O"] = "bluePlayer";
+   var players = {score: {"redPlayer": 0, "bluePlayer": 0}, markerToPlayer: {}, numberOfPlayers: 1},
+       game;
+    $("#startBtn").on("click", function () {
+        $(".startScreen").hide();
+        $(".optionsScreen").show();
+    });
+    $("#pickColorBtn").on("click", function () {
+        if ($(this).html() === "Red") {
+            $(this).html("Blue");
+        } else $(this).html("Red");
+    });
+    $("#pickMarkerBtn").on("click", function () {
+        if ($(this).html() === "X") {
+            $(this).html("O");
+        } else $(this).html("X");
+    });
+    $("#pickOpponentBtn").on("click", function () {
+        if ($(this).html() === "1 Player") {
+            $(this).html("2 Players");
+        } else $(this).html("1 Player");
+    });
+    $("#startGameBtn").on("click", function () {
+        var marker = $("#pickMarkerBtn").html(),
+            playerColor = $("#pickColorBtn").html(),
+            numPlayers = $("#pickOpponentBtn").html(),
+            nextMarker = {"X": "O", "O": "X"};
+        
+        players.numberOfPlayers = parseInt(numPlayers[0], 10);
+        if (playerColor === "Red") {
+            players.markerToPlayer[nextMarker[marker]] = "bluePlayer";
+        } else players.markerToPlayer[nextMarker[marker]] = "redPlayer";
+        players.markerToPlayer[marker] = playerColor.toLowerCase() + "Player";
+        
+        $(".menuScreen").hide();
+        game = tictactoe(players);
+        game.newGame();
+    });
     
     $(".content").css("font-size", $("#playField").width() * 0.3 + "px");
-    game = tictactoe(players);
-    game.newGame();
 });

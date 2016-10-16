@@ -9,30 +9,19 @@ var tictactoe = function (players) {
         currentMarker = "X",
         currentPlayer = players.markerToPlayer[currentMarker],
         celebrationLength = 2000,
-        self = {};
-    console.log(players);///////
-    $("#"+currentPlayer).addClass(currentPlayer+"Active");
+        winState,
+        self = {};   
     
-    function isMarkerInPlace(place) {
-        return field[place] === currentMarker;
-    }
-    function botTurn() {
-        var place;
+    field.disable = function () {
         field.forEach(function (cell, i){
             if (!cell){
                 $("#cell"+i).off("click");
             }
         });
-        for (var i=0; i<field.length; i += 1){
-            if (field[i] === ""){
-                place = i;
-                $("#cell"+i).find(".content").html(currentMarker);
-                $("#cell"+i).removeClass("emptyCell");
-                break;
-            }
-        }
+    }
+    field.enable = function () {
         field.forEach(function (cell, i){
-            if (!cell){
+            if (!cell){                
                 $("#cell"+i).on("click", function () {
                     $(this).find(".content").html(currentMarker);
                     $(this).addClass(currentPlayer);
@@ -41,74 +30,103 @@ var tictactoe = function (players) {
                 });
             }
         });
+    }
+    field.clear = function () {
+        field.fill("").forEach(function (_, i) {
+            var cellId = "#cell" + i;
+            $(cellId).off("click").addClass("emptyCell"); //Clear previous clicks
+            $(cellId).find(".content").html(""); //Empty all cells
+            $(cellId).removeClass("bluePlayer redPlayer"); // Remove color markers
+        });
+    }
+    function isMarkerInPlace(place) {
+        return field[place] === currentMarker;
+    }
+    function placeBotMarker(place) {
+        field[ place] = currentMarker;
+        $("#cell"+ place).find(".content").html(currentMarker);
+        $("#cell"+ place).removeClass("emptyCell").addClass(currentPlayer);
+    }
+    function botTurn() {
+        var place;
+        field.disable();
+        
+        // Determine bots turn
+        for (var i=0; i<field.length; i += 1){
+            if (field[i] === ""){
+                place = i;
+                placeBotMarker(place);
+                break;
+            }
+        }
+        field.enable();
         setMarker(place);
+    }
+    function celebrate(winState) {
+        var winner = currentPlayer;
+        players.score[winner] += 1;
+        // Highlight the winner
+        $("#" + winner).addClass(winner+"Wins");
+        // Highlight winning combination
+        winState.forEach(function(i) {
+           $("#cell"+i).removeClass(winner).addClass(winner+"Marker");
+        });
+        // Take some time for celebration and remove highlights after
+        setTimeout(function () {
+            $("#" + winner).removeClass(winner+"Wins");
+            winState.forEach(function(cellId) {
+               $("#cell"+cellId).removeClass(winner+"Marker");
+            });
+            self.newGame();                    
+        }, celebrationLength);
+        field.disable();
+        
     }
     function testWinner() {
         var winConditions = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
-                             [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+                             [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]],
+            winState = undefined;
         winConditions.some(function (state) { // Test if all places on a field for a certain win condition occupied with the same element            
             if (state.every(isMarkerInPlace)) {
-                var winner = currentPlayer;
-                players.score[winner] += 1;
-                console.log(currentPlayer);
-                // Highlight the winner
-                $("#" + winner).addClass(winner+"Wins");
-                // Highlight winning combination
-                state.forEach(function(cellId) {
-                   $("#cell"+cellId).removeClass(winner).addClass(winner+"Marker");
-                });
-                // Take some time for celebration and remove highlights after
-                setTimeout(function () {
-                    $("#" + winner).removeClass(winner+"Wins");
-                    state.forEach(function(cellId) {
-                       $("#cell"+cellId).removeClass(winner+"Marker");
-                    });
-                    self.newGame();                    
-                }, celebrationLength);
-                // Disable cells
-                field.forEach(function (_, i) {
-                    var cellId = "#cell" + i;
-                    $(cellId).off("click");
-                });
+                winState = state;
                 return true;
             }
         });
         if (field.every(function (elem) {return elem !== ""; })) { //If every cell is occupied call a tie
             setTimeout(self.newGame, celebrationLength);
         }
+        return winState;
     }
     function setMarker(place) {
         $("#"+currentPlayer).removeClass(currentPlayer+"Active");
         field[place] = currentMarker;
-        testWinner();
-        currentMarker = nextMarker[currentMarker];
-        currentPlayer = players.markerToPlayer[currentMarker];
-        $("#"+currentPlayer).addClass(currentPlayer+"Active");
-        if (players.botMarker === currentMarker){
-            botTurn();
+        winState = testWinner();
+        if (winState) {
+            celebrate(winState);
+            
+        } else {
+            currentMarker = nextMarker[currentMarker];
+            currentPlayer = players.markerToPlayer[currentMarker];
+            $("#"+currentPlayer).addClass(currentPlayer+"Active");
+            if (players.botMarker === currentMarker){
+                botTurn();
+            }
         }
     }
+    
     self.newGame = function () {
-        
+        winState = undefined;
         // Update score
         $("#redPlayer").html(players.score.redPlayer);
         $("#bluePlayer").html(players.score.bluePlayer);
+        $("#"+currentPlayer).addClass(currentPlayer+"Active");
         
-        // Setup playing field
-        field.fill("").forEach(function (_, i) {
-            var cellId = "#cell" + i;
-            $(cellId).off("click").addClass("emptyCell"); //Clear previous clicks
-            $(cellId).find(".content").html(""); //Empty all cells
-            $(cellId).removeClass("bluePlayer redPlayer"); // Remove color markers
-            
-            // Add brand new clicks
-            $(cellId).on("click", function () {
-                $(this).find(".content").html(currentMarker);
-                $(this).addClass(currentPlayer);
-                $(this).off("click").removeClass("emptyCell");
-                setMarker($(this).attr("id").slice(-1)); // Set value to a chosen cell on a field
-            });
-        });
+        field.clear();
+        field.enable();
+        
+        if (players.botMarker === currentMarker){
+            botTurn();
+        }
     };
     self.resetScore = function () {
         players.score.redPlayer = players.score.bluePlayer = 0;
@@ -121,6 +139,9 @@ var tictactoe = function (players) {
 $(document).ready(function () {
    var players = {score: {"redPlayer": 0, "bluePlayer": 0}, markerToPlayer: {}, botMarker: ""},
        game;
+    $(".startScreen").fadeOut(600, function () {
+            $(".optionsScreen").fadeIn();
+        });
     $("#startBtn").on("click", function () {
         $(".startScreen").fadeOut(600, function () {
             $(".optionsScreen").fadeIn();
@@ -137,16 +158,15 @@ $(document).ready(function () {
         } else $(this).html("X");
     });
     $("#pickOpponentBtn").on("click", function () {
-        if ($(this).html() === "1 Player") {
-            $(this).html("2 Players");
-        } else $(this).html("1 Player");
+        if ($(this).html() === "1") {
+            $(this).html("2");
+        } else $(this).html("1");
     });
     $("#startGameBtn").on("click", function () {
         var marker = $("#pickMarkerBtn").html(),
             playerColor = $("#pickColorBtn").html(),
-            numPlayers = 1,
+            numPlayers = parseInt($("#pickOpponentBtn").html(), 10),
             nextMarker = {"X": "O", "O": "X"};
-        
         if (numPlayers === 1) {
             players.botMarker = nextMarker[marker];
         }

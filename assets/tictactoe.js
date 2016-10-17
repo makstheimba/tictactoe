@@ -68,7 +68,7 @@ var tictactoe = function (players) {
                 return state.every(i=>field[i] === prevMarker);
             });
 
-        if (isWin || field.every(cell=>cell!=="")) {
+        if (isWin || field.every(cell => cell !== "")) {
             return score(field, isWin, prevMarker);
         }        
         // Trace all available moves
@@ -92,8 +92,9 @@ var tictactoe = function (players) {
     
     function botTurn() {
         field.disable();
-        
-        if (minimax.fieldCache.hasOwnProperty(field)) {
+        if (field.every(e => e === "")) {
+            ultimateChoice = 2;
+        } else if (minimax.fieldCache.hasOwnProperty(field)) {
             console.log("Time saved");
             ultimateChoice = minimax.fieldCache[field];
         } else {            

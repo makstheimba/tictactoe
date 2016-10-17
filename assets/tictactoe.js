@@ -12,7 +12,8 @@ var tictactoe = function (players) {
         winState,
         ultimateChoice,
         winConditions = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]],
-        self = {};
+        self = {};    
+    minimax.fieldCache = {};
     
     field.disable = function () {
         field.forEach(function (cell, i){
@@ -69,8 +70,7 @@ var tictactoe = function (players) {
 
         if (isWin || field.every(cell=>cell!=="")) {
             return score(field, isWin, prevMarker);
-        }
-
+        }        
         // Trace all available moves
         field.forEach(function(cell, i) {
             if (cell === ""){
@@ -89,9 +89,21 @@ var tictactoe = function (players) {
         }
 
     }
-    function botTurn() {        
+    
+    function botTurn() {
         field.disable();
-        minimax(field, currentMarker);
+        
+        if (minimax.fieldCache.hasOwnProperty(field)) {
+            console.log("Time saved");
+            ultimateChoice = minimax.fieldCache[field];
+        } else {            
+            minimax(field, currentMarker);
+        }
+        // Memoization for field with more then 7 empty cells
+        if (!minimax.fieldCache.hasOwnProperty(field) && field.filter(e => e === "").length > 7) {
+            minimax.fieldCache[field] = ultimateChoice;
+        }
+        console.log(minimax.fieldCache);
         field.enable();
         $("#cell"+ultimateChoice).trigger("click");
     }
@@ -132,7 +144,7 @@ var tictactoe = function (players) {
         $("#"+currentPlayer).removeClass(currentPlayer+"Active");
         if (winState) {
             celebrate(winState);            
-        } else if (field.every(function (elem) {return elem !== ""; })){
+        } else if (field.every(function (elem) {return elem !== ""; })){ // Tie
             setTimeout(self.newGame, celebrationLength);
         } else {
             currentMarker = nextMarker[currentMarker];
@@ -154,7 +166,7 @@ var tictactoe = function (players) {
         field.clear();
         field.enable();
         
-        if (players.botMarker === currentMarker){
+        if (players.botMarker === currentMarker) {
             botTurn();
         }
     };

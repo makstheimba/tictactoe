@@ -91,7 +91,6 @@ var tictactoe = function (players) {
     }
     function botTurn() {        
         field.disable();
-        // Determine bots turn        
         minimax(field, currentMarker);
         field.enable();
         $("#cell"+ultimateChoice).trigger("click");
@@ -170,9 +169,11 @@ var tictactoe = function (players) {
 $(document).ready(function () {
    var players = {score: {"redPlayer": 0, "bluePlayer": 0}, markerToPlayer: {}, botMarker: ""},
        game;
-    $(".startScreen").fadeOut(600, function () {
+    $(".startScreen").on("click", function () {
+        $(this).fadeOut(600, function () {
             $(".optionsScreen").fadeIn();
         });
+    });
     $("#startBtn").on("click", function () {
         $(".startScreen").fadeOut(600, function () {
             $(".optionsScreen").fadeIn();
@@ -189,9 +190,9 @@ $(document).ready(function () {
         } else $(this).html("X");
     });
     $("#pickOpponentBtn").on("click", function () {
-        if ($(this).html() === "1") {
-            $(this).html("2");
-        } else $(this).html("1");
+        if ($(this).html() === "1P") {
+            $(this).html("2P");
+        } else $(this).html("1P");
     });
     $("#startGameBtn").on("click", function () {
         var marker = $("#pickMarkerBtn").html(),
@@ -205,8 +206,10 @@ $(document).ready(function () {
             players.markerToPlayer[nextMarker[marker]] = "bluePlayer";
         } else players.markerToPlayer[nextMarker[marker]] = "redPlayer";
         players.markerToPlayer[marker] = playerColor.toLowerCase() + "Player";
-        
-        $(".menuScreen").fadeOut();
+        $(".field").fadeOut(600, function () {
+            $(".menuScreen").hide();
+            $(".field").fadeIn();
+        });
         game = tictactoe(players);
         game.newGame();
     });

@@ -10,7 +10,9 @@ var tictactoe = function (players) {
         currentPlayer = players.markerToPlayer[currentMarker],
         celebrationLength = 2000,
         winState,
-        self = {};   
+        ultimateChoice,
+        winConditions = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]],
+        self = {};
     
     field.disable = function () {
         field.forEach(function (cell, i){
@@ -39,29 +41,62 @@ var tictactoe = function (players) {
             $(cellId).removeClass("bluePlayer redPlayer"); // Remove color markers
         });
     }
+    
     function isMarkerInPlace(place) {
         return field[place] === currentMarker;
     }
-    function placeBotMarker(place) {
-        field[ place] = currentMarker;
-        $("#cell"+ place).find(".content").html(currentMarker);
-        $("#cell"+ place).removeClass("emptyCell").addClass(currentPlayer);
-    }
-    function botTurn() {
-        var place;
-        field.disable();
-        
-        // Determine bots turn
-        for (var i=0; i<field.length; i += 1){
-            if (field[i] === ""){
-                place = i;
-                placeBotMarker(place);
-                break;
-            }
+    
+    function score(field, isWin, winMarker){
+      if (isWin) {
+        if (winMarker === players.botMarker){
+            return 1;
+        } else {
+            return -1;
         }
-        field.enable();
-        setMarker(place);
+      } else { // Tie
+        return 0;
+      }
     }
+    
+    function minimax(field, currentMarker) {
+        var scores = [],
+            moves = [],
+            newField,
+            prevMarker = nextMarker[currentMarker],
+            isWin = winConditions.some(function(state) {
+                return state.every(i=>field[i] === prevMarker);
+            });
+
+        if (isWin || field.every(cell=>cell!=="")) {
+            return score(field, isWin, prevMarker);
+        }
+
+        // Trace all available moves
+        field.forEach(function(cell, i) {
+            if (cell === ""){
+                newField = field.slice();
+                newField[i] = currentMarker;
+                scores.push(minimax(newField, nextMarker[currentMarker]));
+                moves.push(i);
+            }
+        });
+        if (currentMarker === players.botMarker) {
+            ultimateChoice = moves[scores.indexOf(Math.max(...scores))];
+            return Math.max.apply(null, scores);
+        } else {
+            ultimateChoice = moves[scores.indexOf(Math.min(...scores))];
+            return Math.min.apply(null, scores);
+        }
+
+    }
+    function botTurn() {        
+        field.disable();
+        // Determine bots turn        
+        minimax(field, currentMarker);
+        field.enable();
+        $("#cell"+ultimateChoice).trigger("click");
+    }
+    
     function celebrate(winState) {
         var winner = currentPlayer;
         players.score[winner] += 1;
@@ -83,27 +118,23 @@ var tictactoe = function (players) {
         
     }
     function testWinner() {
-        var winConditions = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
-                             [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]],
-            winState = undefined;
+        var winState = undefined;
         winConditions.some(function (state) { // Test if all places on a field for a certain win condition occupied with the same element            
-            if (state.every(isMarkerInPlace)) {
+            if (state.every(i=>field[i] === currentMarker)) {
                 winState = state;
                 return true;
             }
         });
-        if (field.every(function (elem) {return elem !== ""; })) { //If every cell is occupied call a tie
-            setTimeout(self.newGame, celebrationLength);
-        }
         return winState;
     }
     function setMarker(place) {
-        $("#"+currentPlayer).removeClass(currentPlayer+"Active");
         field[place] = currentMarker;
-        winState = testWinner();
+        winState = testWinner(field);
+        $("#"+currentPlayer).removeClass(currentPlayer+"Active");
         if (winState) {
-            celebrate(winState);
-            
+            celebrate(winState);            
+        } else if (field.every(function (elem) {return elem !== ""; })){
+            setTimeout(self.newGame, celebrationLength);
         } else {
             currentMarker = nextMarker[currentMarker];
             currentPlayer = players.markerToPlayer[currentMarker];
